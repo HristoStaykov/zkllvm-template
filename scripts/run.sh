@@ -91,7 +91,7 @@ compile() {
         mkdir -p "$REPO_ROOT/build"
         cd "$REPO_ROOT/build"
         cmake -DCIRCUIT_ASSEMBLY_OUTPUT=TRUE ..
-        VERBOSE=1 make template
+        VERBOSE=1 make template compute_shuffled_index_runable
         cd -
         check_file_exists "$REPO_ROOT/build/src/template.ll"
     fi

@@ -7,6 +7,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake"
 include(CMConfig)
 include(CMSetupVersion)
 include(CircuitCompile)
+set(CMAKE_BUILD_TYPE Debug)
 
 cm_workspace(crypto3)
 
