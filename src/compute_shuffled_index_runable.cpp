@@ -6,8 +6,7 @@
 
 using namespace nil::crypto3;
 
-using uint64 = unsigned long long;
-using uint32 = unsigned int;
+using sha256_t = typename hashes::sha2<256>::block_type;
 
 static const unsigned char SHUFFLE_ROUND_COUNT = 90;
 
@@ -21,8 +20,8 @@ static const unsigned char SHUFFLE_ROUND_COUNT = 90;
 }
 #endif
 
-bool is_same(typename hashes::sha2<256>::block_type block0,
-    typename hashes::sha2<256>::block_type block1){
+bool is_same(sha256_t block0,
+    sha256_t block1){
 
     bool result = true;
     for(auto i = 0; i < sizeof(block0)/sizeof(block0[0]) && result; i++) {
@@ -42,7 +41,7 @@ char get_nth_byte(const T& val, unsigned int n) {
 }
 
 template <typename T>
-void sha256_to_bytes_array(typename hashes::sha2<256>::block_type sha, T& out) {
+void sha256_to_bytes_array(sha256_t sha, T& out) {
     assert_true(out.size() >= sizeof(sha));
     for(int int_count = 0; int_count < sizeof(sha)/sizeof(sha[0]); int_count++) {
 
@@ -86,14 +85,14 @@ T bytes_to_int(const std::array<unsigned char, sizeof(T)>& paramVec)
     return val;
 }
 
-uint64 compute_shuffled_index(
-        uint64 index,
-        uint64 index_count,
-        typename hashes::sha2<256>::block_type seed) {
+uint64_t compute_shuffled_index(
+        uint64_t index,
+        uint64_t index_count,
+        sha256_t seed) {
     assert_true(index < index_count);
 
     std::array<unsigned char, 32+1+4> source_buffer;
-    uint64 cur_idx_permuted = index;
+    uint64_t cur_idx_permuted = index;
 
     sha256_to_bytes_array(seed, source_buffer);
 
@@ -106,12 +105,12 @@ uint64 compute_shuffled_index(
         std::array<unsigned char, 32> eth2digest_bytes;
         sha256_to_bytes_array(eth2digest, eth2digest_bytes);
         auto first8bytes = take_n_elements<unsigned char, eth2digest_bytes.size(), 8>(eth2digest_bytes);
-        auto first8bytes_int = bytes_to_int<uint64>(first8bytes);
+        auto first8bytes_int = bytes_to_int<uint64_t>(first8bytes);
         auto pivot = first8bytes_int % index_count;
         auto flip = ((index_count + pivot) - cur_idx_permuted) % index_count;
         auto position = std::max(cur_idx_permuted, flip);
 
-        auto source_buffer_additional_bytes = int_to_bytes(uint32(position >> 8));
+        auto source_buffer_additional_bytes = int_to_bytes(uint32_t(position >> 8));
         for (auto i = 0; i <= 4; i++) {
             source_buffer[33 + i] = source_buffer_additional_bytes[i];
         }
@@ -145,12 +144,12 @@ int main(int argc, char* argv[]) {
     }
 
     for(int i = 0; i < 10000; i++) {
-        uint64 val = rand();
-        printf("starting val64 = %lld\n", val);
+        uint64_t val = rand();
+        printf("starting val64 = %ld\n", val);
         int saved = val;
         auto myArr = int_to_bytes(val);
-        val = bytes_to_int<uint64>(myArr);
-        printf("after the convertions val64 = %lld\n\n", val);    
+        val = bytes_to_int<uint64_t>(myArr);
+        printf("after the convertions val64 = %ld\n\n", val);
 
         assert_true(val == saved);
     }
@@ -168,7 +167,7 @@ int main(int argc, char* argv[]) {
 
 
 // ################################################################################################################33
-    typename hashes::sha2<256>::block_type seed = {1, 2, 3, 4, 5, 6, 7, 8, 255, 256, 11, 65536, 16777215, 16777216, 167772160, 1677721600};
+    sha256_t seed = {1, 2, 3, 4, 5, 6, 7, 8, 255, 256, 11, 65536, 16777215, 16777216, 167772160, 1677721600};
     std::array<unsigned char, 16*4> source_buffer;
 
     sha256_to_bytes_array(seed, source_buffer);
